@@ -1,4 +1,4 @@
-name: Build LaTeX document
+name: Build and Publish LaTeX PDF
 
 on:
   push:
@@ -7,19 +7,24 @@ on:
     branches: [ main ]
 
 jobs:
-  build_latex:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Compile LaTeX document
+      - name: Compile LaTeX
         uses: xu-cheng/latex-action@v3
         with:
           root_file: main.tex
 
-      - name: Upload PDF artifact
-        uses: actions/upload-artifact@v4
+      - name: Copy PDF to publish folder
+        run: |
+          mkdir public
+          cp main.pdf public/
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          name: compiled-pdf
-          path: main.pdf
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
