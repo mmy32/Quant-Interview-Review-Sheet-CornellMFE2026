@@ -1,1 +1,436 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage[a4paper, margin=1cm]{geometry}
+\usepackage{tocloft}
+\usepackage{amsmath}
+\usepackage{pdflscape}
+\usepackage[most]{tcolorbox}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue]{hyperref}
+
+
+
+
+\title{Quant Interview Review Sheet}
+\author{Cornell MFE 2026}
+
+\begin{document}
+
+
+\maketitle
+\tableofcontents
+
+\section{Preface}
+This document is intended as a review of the basic topics and tricks needed for a quantitative trading interview. It should be concise enough to be read as a refresher in the 15 minutes before an interview. Alternatively, it may be used as an aid when taking assessments as a reference for commonly used formulas.
+
+\newpage
+
+\section{Probability}
+\subsection{Combinatorics}
+% Permutations, combinations, counting principles
+
+\begin{tcolorbox}[title=Useful Combinatorics Identities]
+\begin{itemize}
+  \item \textbf{Pascal's Rule:}
+  \[
+  \binom{n}{r} = \binom{n-1}{r} + \binom{n-1}{r-1}
+  \]
+
+  \item \textbf{Symmetry:}
+  \[
+  \binom{n}{r} = \binom{n}{n - r}
+  \]
+
+  \item \textbf{Sum over all combinations:}
+  \[
+  \sum_{r=0}^{n} \binom{n}{r} = 2^n
+  \]
+
+  \item \textbf{Binomial Theorem:}
+  \[
+  (x + y)^n = \sum_{k=0}^{n} \binom{n}{k} x^{n-k} y^k
+  \]
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[title=Permutations with Identical Items]
+\textbf{Formula:}
+\[
+\text{Number of distinct permutations of } n \text{ items with repeats:} \quad
+\frac{n!}{n_1! \, n_2! \, \cdots \, n_k!}
+\]
+where \( n_1, n_2, \ldots, n_k \) are the counts of identical items.
+
+\textbf{Use Case:} Arranging letters in a word with repeated letters (e.g., \texttt{BANANA}).
+
+\end{tcolorbox}
+
+
+% Stars and Bars Box
+\begin{tcolorbox}[title=Stars and Bars]
+\textbf{Problem Type:} Distributing \( n \) identical objects into \( k \) distinct bins
+
+\textbf{Formula:}
+\[
+\text{Number of ways} = \binom{n+k-1}{k-1} = \binom{n+k-1}{n}
+\]
+
+\textbf{Equivalent Problem:} Number of non-negative integer solutions to:
+\[
+x_1 + x_2 + \cdots + x_k = n
+\]
+
+\textbf{Variant - With Restrictions:} If each bin must have at least \( m \) objects:
+\[
+\text{Place \( m \) in each bin first, then distribute remaining: } \binom{(n-km)+k-1}{k-1}
+\]
+\end{tcolorbox}
+
+\vspace{1em}
+
+% Inclusion-Exclusion Box
+\begin{tcolorbox}[title=Inclusion-Exclusion Principle]
+\textbf{Two Sets:}
+\[
+|A \cup B| = |A| + |B| - |A \cap B|
+\]
+
+\textbf{Three Sets:}
+\[
+\begin{aligned}
+|A \cup B \cup C| &= |A| + |B| + |C| \\
+&\quad - |A \cap B| - |A \cap C| - |B \cap C| \\
+&\quad + |A \cap B \cap C|
+\end{aligned}
+\]
+
+\textbf{General Form for \( n \) Sets:}
+\[
+\left|\bigcup_{i=1}^n A_i\right| = \sum_{k=1}^n (-1)^{k-1} \sum_{1 \leq i_1 < \cdots < i_k \leq n} \left|A_{i_1} \cap \cdots \cap A_{i_k}\right|
+\]
+\end{tcolorbox}
+
+
+
+
+\subsection{Bayes' Theorem and Conditional Probability}
+% Bayes’ Rule, conditional probability, independence
+% 1. Conditional Probability, Bayes, and Law of Total Probability
+\begin{tcolorbox}[colback=white,colframe=black,title={Conditional Probability, Bayes, and Law of Total Probability}]
+Consider events $A_1, \dots, A_n$, which form a partition of the sample space as well as event $B$. Then,
+\[
+P(A_1 \mid B) = \frac{P(A_1 \cap B)}{P(B)} 
+= \frac{P(B \mid A_1) P(A_1)}{P(B)}
+= \frac{P(B \mid A_1)P(A_1)}{\sum_{i=1}^n P(B \cap A_i)}
+= \frac{P(B \mid A_1)P(A_1)}{\sum_{i=1}^n P(B \mid A_i)P(A_i)}
+\]
+\end{tcolorbox}
+
+\begin{tcolorbox}[title=De Morgan's Laws]
+\textbf{Set Theory Version:}
+\begin{align*}
+(A \cup B)^c &= A^c \cap B^c \\
+(A \cap B)^c &= A^c \cup B^c
+\end{align*}
+\end{tcolorbox}
+
+
+\subsection{Expectation, Variance, Covariance, and Correlation}
+% Definitions and properties of EV, Var, Cov, Corr
+
+
+% 2. Law of Total Expectation and Variance
+\begin{tcolorbox}[colback=white,colframe=black,title={Law of Total Expectation and Variance}]
+For two random variables $X, Y$ defined on the same sample space,
+\[
+\mathbb{E}[X] = \mathbb{E}[\mathbb{E}[X \mid Y]]
+\]
+\[
+\text{discrete: } \quad \mathbb{E}[X] = \sum_{i=1}^\infty P(Y = y_i) \, \mathbb{E}[X \mid Y = y_i]
+\]
+\[
+\text{continuous:} \quad \mathbb{E}[X] = \int_{\mathbb{R}} \mathbb{E}[X \mid Y = y] f_Y(y) \, dy
+\]
+
+In variance,
+\[
+\operatorname{Var}(X) = \operatorname{Var}(\mathbb{E}[X \mid Y]) + \mathbb{E}[\operatorname{Var}(X \mid Y)]
+\]
+where
+\[
+\operatorname{Var}(X \mid Y) = \mathbb{E}[(X - \mathbb{E}[X \mid Y])^2 \mid Y]
+\]
+The Law of Total Expectation says that if we “average over all averages” of $X$ obtained by some information about $Y$, we obtain the true average. Similarly, the Law of Total Variance says that the true variance comes from two sources: between samples (the first term) and within samples (the second term).
+\end{tcolorbox}
+
+% 3. Covariance and Correlation
+\begin{tcolorbox}[colback=white,colframe=black,title={Covariance and Correlation}]
+\[
+\operatorname{Cov}(X,Y) = \mathbb{E}[XY] - \mathbb{E}[X]\mathbb{E}[Y]
+\]
+\[
+\operatorname{Corr}(X,Y) = \frac{\operatorname{Cov}(X,Y)}{\sigma_X \sigma_Y}
+\]
+Covariance and correlation are measurements of linear association of $X$ and $Y$. An example of uncorrelated but not independent random variables are $Z$ and $Z^2$, where $Z \sim N(0,1)$.
+\end{tcolorbox}
+
+% 4. Properties of Expectation, Variance, and Covariance
+\begin{tcolorbox}[colback=white,colframe=black,title={Properties of Expectation, Variance, and Covariance}]
+Let $a,b,c,d$ be real constants and $X$ and $Y$ be random variables with finite mean and variance. Then all of the following hold:
+\begin{enumerate}
+    \item $\mathbb{E}[aX + bY + c] = a\mathbb{E}[X] + b\mathbb{E}[Y] + c$
+    \item $\operatorname{Var}(aX + b) = a^2 \operatorname{Var}(X)$
+    \item $\operatorname{Cov}(aX + b, cY + d) = ac \, \operatorname{Cov}(X,Y)$
+    \item $\operatorname{Var}(X + Y) = \operatorname{Var}(X) + \operatorname{Var}(Y) + 2\operatorname{Cov}(X,Y)$
+    \item If $X$ and $Y$ are independent and have finite mean, then $X$ and $Y$ are uncorrelated.
+    \item $\operatorname{Corr}(aX + b, cY + d) = \operatorname{sign}(ac) \operatorname{Corr}(X,Y)$
+    \item $\operatorname{Cov}(X,X) = \operatorname{Var}(X)$
+    \item The correlation and covariance matrices are both positive semidefinite. ($
+\forall \mathbf{x} \in \mathbb{R}^n,\quad \mathbf{x}^\top A \mathbf{x} \geq 0.
+$)
+    \item $\lvert \operatorname{Corr}(X,Y) \rvert \le 1$
+\end{enumerate}
+\end{tcolorbox}
+
+\subsection{Order Statistics}
+% Distributions of min, max, and general k-th order stats
+
+\newpage
+
+    
+\subsection{Distributions}
+% Permutations, combinations, counting principles
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|p{3.5cm}|p{3.5cm}|p{3.5cm}|p{2.5cm}|c|c|}
+\hline
+\textbf{Name} & \textbf{Modeling Intuition} & \textbf{PMF/PDF} & \textbf{CDF} & \textbf{MGF} & $\boldsymbol{\mu}$ & $\boldsymbol{\sigma^2}$ \\
+\hline
+Bernoulli &
+Toss a coin, 1 if heads, else 0, coin lands heads with probability $p$ &
+$P(X = x) = \begin{cases}
+p & \text{if } x = 1 \\
+1-p & \text{if } x = 0
+\end{cases}$ &
+$P(X \leq x) = \begin{cases}
+0 & \text{if } x < 0 \\
+1-p & \text{if } 0 \leq x < 1 \\
+1 & \text{if } x \geq 1
+\end{cases}$ &
+$pe^{\theta} + (1-p)$ &
+$p$ &
+$p(1-p)$ \\
+\hline
+Binomial &
+Toss a coin $n$ times, probability of $x$ heads, coin lands heads with probability $p$ &
+$P(X = x) = \binom{n}{x} p^x (1-p)^{n-x}$ &
+$P(X \leq x) = \sum_{k=0}^{\lfloor x \rfloor} \binom{n}{k} p^k (1-p)^{n-k}$ &
+$\left[ p e^{\theta} + (1-p) \right]^n$ &
+$np$ &
+$np(1-p)$ \\
+\hline
+Geometric &
+Probability of tossing coin $x$ times until first heads, coin lands heads with probability $p$ &
+$P(X = x) = p (1-p)^{x-1}$ &
+$P(X \leq x) = 1 - (1-p)^x$ &
+$\frac{p e^{\theta}}{1 - (1-p)e^{\theta}}$ &
+$\frac{1}{p}$ &
+$\frac{1-p}{p^2}$ \\
+\hline
+Poisson &
+Probability of $x$ occurrences within a fixed time interval or space; parameter $\lambda$ represents average number of occurrences &
+$P(X = x) = \frac{\lambda^x e^{-\lambda}}{x!}$ &
+$P(X \leq x) = \sum_{k=0}^{\lfloor x \rfloor} \frac{\lambda^k e^{-\lambda}}{k!}$ &
+$e^{\lambda (e^{\theta} - 1)}$ &
+$\lambda$ &
+$\lambda$ \\
+\hline
+Exponential &
+Probability distribution of time between events in a Poisson process occurring with rate $\lambda$ &
+$f(x) = \lambda e^{-\lambda x}$ for $x \geq 0$ &
+$P(X \leq x) = 1 - e^{-\lambda x}$ for $x \geq 0$ &
+$\frac{\lambda}{\lambda - \theta}$ for $\theta < \lambda$ &
+$\frac{1}{\lambda}$ &
+$\frac{1}{\lambda^2}$ \\
+\hline
+Uniform &
+Uniform distribution on interval $[a,b]$ &
+$f(x) = \frac{1}{b-a}$ for $x \in [a,b]$ &
+$P(X \leq x) = \begin{cases}
+0 & \text{if } x < a \\
+\frac{x-a}{b-a} & \text{if } a \leq x \leq b \\
+1 & \text{if } x > b
+\end{cases}$ &
+$\frac{e^{b\theta} - e^{a\theta}}{\theta(b-a)}$ for $\theta \neq 0$ &
+$\frac{a+b}{2}$ &
+$\frac{(b-a)^2}{12}$ \\
+\hline
+Normal &
+Continuous distribution with bell curve shape, parameterized by mean $\mu$ and variance $\sigma^2$ &
+$f(x) = \frac{1}{\sigma\sqrt{2\pi}} \exp\left( -\frac{(x-\mu)^2}{2\sigma^2} \right)$ &
+$P(X \leq x) = \Phi\left(\frac{x-\mu}{\sigma}\right)$ &
+$e^{\mu\theta + \frac{1}{2} \sigma^2 \theta^2}$ &
+$\mu$ &
+$\sigma^2$ \\
+\hline
+\end{tabular}
+\caption{Key Distributions and Their Properties}
+\end{table}
+\newpage
+
+
+
+% -----------------------------
+
+\section{Statistics}
+
+\subsection{Normal Distribution and Related Properties}
+% Standard normal, z-scores, CLT
+
+\subsection{Linear Regression}
+% OLS, assumptions, residuals, R-squared
+
+\subsection{Hypothesis Testing}
+% t-test, z-test, p-values, type I/II errors
+
+\subsection{Confidence Intervals}
+% CI for mean, proportion, difference
+
+\subsection{Maximum Likelihood Estimation (MLE)}
+% Likelihood, log-likelihood, properties of MLEs
+
+% -----------------------------
+\newpage
+\section{Stochastic Processes}
+
+\subsection{Markov Chains}
+% Transition matrix, steady state, classification of states
+
+
+\subsection{Martingales}
+% Definition, properties, fair games
+\begin{tcolorbox}[colback=white,colframe=black,title={Martingales, Submartingales, Supermartingales}]
+Let $(\mathcal{F}_n)$ be a filtration and $(X_n)$ an adapted process.
+\[
+\text{Martingale:} \quad \mathbb{E}[X_{n+1} \mid \mathcal{F}_n] = X_n
+\]
+\[
+\text{Submartingale:} \quad \mathbb{E}[X_{n+1} \mid \mathcal{F}_n] \geq X_n
+\]
+\[
+\text{Supermartingale:} \quad \mathbb{E}[X_{n+1} \mid \mathcal{F}_n] \leq X_n
+\]
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=white,colframe=black,title={Optimal Stopping Times}]
+A stopping time $\tau$ with respect to $(\mathcal{F}_n)$ is a random time such that:
+\[
+\{\tau \leq n\} \in \mathcal{F}_n \quad \text{for all } n
+\]
+The optimal stopping problem seeks $\tau$ to maximize:
+\[
+\mathbb{E}[X_\tau]
+\]
+for a given process $(X_n)$. The optimal stopping theorem provides conditions under which:
+\[
+\mathbb{E}[X_\tau] \leq \mathbb{E}[X_0]
+\]
+for all stopping times $\tau$, if $(X_n)$ is a supermartingale.
+\end{tcolorbox}
+
+
+\subsection{Random Walks}
+% Symmetric walk, absorbing boundaries
+
+\begin{tcolorbox}[colback=white,colframe=black,title={Birth and Death Chains}]
+A birth and death chain is a Markov chain on $\mathbb{N}$ with transitions:
+\[
+P(i, i+1) = \lambda_i \quad \text{(birth)}, \quad P(i, i-1) = \mu_i \quad \text{(death)}
+\]
+\[
+P(i, i) = 1 - \lambda_i - \mu_i
+\]
+with $\lambda_i, \mu_i \geq 0$ and $\lambda_i + \mu_i \leq 1$. 
+\end{tcolorbox}
+
+
+\subsection{Dynamic Programming}
+% Bellman equation, principle of optimality
+
+% -----------------------------
+\newpage
+\section{Finance}
+
+\subsection{Options}
+% Call/put, payoff diagrams, Greeks
+
+\subsection{Derivatives}
+% Forwards, futures, swaps
+
+\subsection{Portfolio Theory}
+% Risk-return tradeoff, efficient frontier, CAPM
+
+\subsection{Arbitrage and Pricing}
+% No-arbitrage principle, replication
+
+% -----------------------------
+\newpage
+\section{Brainteasers}
+
+\subsection{Mathematical Sequences}
+% Patterns, recursive sequences, nth terms
+
+\begin{tcolorbox}[colback=white,colframe=black,title={Common Sequences in Quantitative Reasoning}]
+\textbf{Arithmetic Sequence:} constant difference  
+\[
+a_n = a + (n-1)d \quad \text{e.g. } 2, 5, 8, 11, \ldots \quad (d = 3)
+\]
+
+\textbf{Geometric Sequence:} constant ratio  
+\[
+a_n = ar^{n-1} \quad \text{e.g. } 3, 6, 12, 24, \ldots \quad (r = 2)
+\]
+
+\textbf{Mixed Operations:}  
+\begin{itemize}
+  \item $n^2 + 1$: \quad 2, 5, 10, 17, 26, \ldots
+  \item $\times 2 + 1$: \quad 1, 3, 7, 15, 31, \ldots
+  \item $n(n+1)$: \quad 2, 6, 12, 20, 30, \ldots
+\end{itemize}
+
+\textbf{Powers and Factorials:}
+\begin{itemize}
+  \item Squares: \quad $1, 4, 9, 16, 25, \ldots$
+  \item Cubes: \quad $1, 8, 27, 64, \ldots$
+  \item Factorials: \quad $1, 2, 6, 24, 120, \ldots$ ($n!$)
+\end{itemize}
+
+\textbf{Prime Numbers:}  
+\[
+2, 3, 5, 7, 11, 13, 17, 19, 23, 29, \ldots
+\]
+
+\textbf{Alternating Patterns:}
+\begin{itemize}
+  \item Alternate $+3$ and $-1$: \quad $1, 4, 3, 6, 5, 8, \ldots$
+\end{itemize}
+
+\textbf{Fibonacci-Type Recurrences:}
+\begin{itemize}
+  \item $f_n = f_{n-1} + f_{n-2}$: \quad $0, 1, 1, 2, 3, 5, 8, \ldots$
+  \item $f_n = 3f_{n-1} + f_{n-2}$: \quad $2, 5, 17, 56, 185, 611$
+\end{itemize}
+\end{tcolorbox}
+
+
+% -----------------------------
+\newpage
+\section{Algorithms and Data Structures}
+% Sorting, searching, complexity, recursion, hash tables
+\newpage
+\nocite{*}
+\bibliographystyle{plain}
+\bibliography{references} 
+
+
+\end{document}
 
